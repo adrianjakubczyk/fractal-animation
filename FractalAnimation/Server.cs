@@ -64,32 +64,35 @@ namespace FractalAnimation
 
             List<Frame> frames = new List<Frame>();
 
-            for(int i=0; i < keyframes.Count; i++)
+            //framerate = (int)Math.Ceiling(framerate*1.0/(keyframes.Count - 1));
+            framerate = framerate / (keyframes.Count - 1);
+
+
+            for (int i=0; i < keyframes.Count-1; i++)
             {
-                if (i + 1 < keyframes.Count)
+                Frame begin = new Frame(keyframes[i].bottomLeft, keyframes[i].topRight);
+
+
+                Frame increment = new Frame(
+                    (keyframes[i].bottomLeft.X - keyframes[i + 1].bottomLeft.X) / framerate,
+                    (keyframes[i].bottomLeft.Y - keyframes[i + 1].bottomLeft.Y) / framerate,
+                    (keyframes[i].topRight.X - keyframes[i + 1].topRight.X) / framerate,
+                    (keyframes[i].topRight.Y - keyframes[i + 1].topRight.Y) / framerate
+                    );
+                //frames.Add(begin);
+                for (int j = 0; j < framerate; ++j)
                 {
-                    Frame begin = new Frame(keyframes[i].bottomLeft, keyframes[i].topRight);
-
-                    Frame increment = new Frame(
-                        (keyframes[i].bottomLeft.X - keyframes[i + 1].bottomLeft.X) / framerate,
-                        (keyframes[i].bottomLeft.Y - keyframes[i + 1].bottomLeft.Y) / framerate,
-                        (keyframes[i].topRight.X - keyframes[i + 1].topRight.X) / framerate,
-                        (keyframes[i].topRight.Y - keyframes[i + 1].topRight.Y) / framerate
-                        );
-                    frames.Add(begin);
-                    for(int j = 0; j < framerate; ++j)
+                    Frame frame = new Frame();
+                    frame.Add(begin);
+                    for (int z = 0; z < j; z++)
                     {
-                        Frame frame = new Frame();
-                        frame.Add(begin);
-                        for(int z = 0; z < j; z++)
-                        {
-                            frame.Subtract(increment);
+                        frame.Subtract(increment);
 
-                        }
-
-                        frames.Add(frame);
                     }
+
+                    frames.Add(frame);
                 }
+                //frames.Add(new Frame(keyframes[i+1].bottomLeft, keyframes[i+1].topRight));
             }
 
             Console.WriteLine("\n\nFRAMES: " +frames.Count);
