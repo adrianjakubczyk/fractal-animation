@@ -132,7 +132,6 @@ namespace FractalAnimation
         {
             double min = Math.Min(Math.Abs(topRight.X-bottomLeft.X),Math.Abs(topRight.Y - bottomLeft.Y));
             iterations = (int) (Math.Log(1 / min) * 40 + 100);
-            Console.WriteLine(iterations);
         }
 
     }

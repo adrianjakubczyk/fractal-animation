@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -27,33 +28,10 @@ namespace FractalAnimation
         //private int MaxIterations = 80;
         Point zoom1;
         Point zoom2;
-        private int frameCount = 0;
         private Mandelbrot mandelbrot;
         private List<KeyframeControlElement> keyframeControlElements = new List<KeyframeControlElement>();
         private Server server = new Server();
-        private int Mandelbrot(Complex c, int iterations)
-        {
-            Complex z = 0;
-            int i = 0;
-            while (Complex.Abs(z) <= 2 && i < iterations)
-            {
-                z = z * z + c;
-                i++;
-            }
-            return i;
-        }
-        void CreateThumbnail(string filename, BitmapSource image)
-        {
-            if (filename != string.Empty)
-            {
-                using (FileStream stream = new FileStream(filename, FileMode.Create))
-                {
-                    PngBitmapEncoder encoder = new PngBitmapEncoder();
-                    encoder.Frames.Add(BitmapFrame.Create(image));
-                    encoder.Save(stream);
-                }
-            }
-        }
+        
         private void generate(object sender, RoutedEventArgs e)
         {
             //mandelbrot.iterations = int.Parse(inputIterations.Text);
@@ -92,7 +70,7 @@ namespace FractalAnimation
                 btnGenerate.Content = "Calculating";
                 CountdownEvent countdown = new CountdownEvent(1);
                 
-                Console.WriteLine("Animation length: {0}, FPS: {1}",animationLength,fps);
+                //Console.WriteLine("Animation length: {0}, FPS: {1}",animationLength,fps);
                 int width = 1280;
                 int height = 720;
                 switch (inputResolution.SelectedIndex)
@@ -118,8 +96,15 @@ namespace FractalAnimation
                 }
 
                 //30 * 1 -> fps * seconds
+                Stopwatch stopwatch = Stopwatch.StartNew();
                 server.Calculate(keyframeControlElements,width,height,iterations,fps*animationLength,ref countdown);
                 countdown.Wait();
+                stopwatch.Stop();
+                Console.WriteLine("Stopwatch: " + stopwatch.ElapsedMilliseconds + "ms");
+                
+                string strCmdText;
+                strCmdText = "/C ffmpeg -framerate " + fps+" -i testing%d.png output.mp4";
+                System.Diagnostics.Process.Start("CMD.exe", strCmdText);
                 btnGenerate.IsEnabled = true;
                 btnGenerate.Content = "Generate";
             }
@@ -236,7 +221,7 @@ namespace FractalAnimation
             zoom1 = matrix.Transform(zoom1);
             zoom2 = matrix.Transform(zoom2);
 
-            Console.WriteLine("\n\nZOOM2: "+zoom2+"\n\n");
+            //Console.WriteLine("\n\nZOOM2: "+zoom2+"\n\n");
 
             zoom1.X = (mandelbrot.bottomLeft.X - zoom1.X) / 30;
             zoom1.Y = (mandelbrot.bottomLeft.Y - zoom1.Y) / 30;

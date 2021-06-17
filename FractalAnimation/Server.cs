@@ -56,10 +56,7 @@ namespace FractalAnimation
         public void Calculate(List<KeyframeControlElement> keyframes,int width,int height,int iterations, int framerate, ref CountdownEvent countdown)
         {
             
-            //write some magic here
-
-            //temp all clients calc the same
-
+            
             Console.WriteLine("\n\nClient count: " + clients.Count);
 
             List<Frame> frames = new List<Frame>();
@@ -79,7 +76,6 @@ namespace FractalAnimation
                     (keyframes[i].topRight.X - keyframes[i + 1].topRight.X) / framerate,
                     (keyframes[i].topRight.Y - keyframes[i + 1].topRight.Y) / framerate
                     );
-                //frames.Add(begin);
                 for (int j = 0; j < framerate; ++j)
                 {
                     Frame frame = new Frame();
@@ -92,8 +88,9 @@ namespace FractalAnimation
 
                     frames.Add(frame);
                 }
-                //frames.Add(new Frame(keyframes[i+1].bottomLeft, keyframes[i+1].topRight));
+                
             }
+            frames.Add(new Frame(keyframes[keyframes.Count - 1].bottomLeft, keyframes[keyframes.Count - 1].topRight));
 
             Console.WriteLine("\n\nFRAMES: " +frames.Count);
             for (int i = 0; i < clients.Count; i++)
@@ -217,7 +214,7 @@ namespace FractalAnimation
 
                     networkStream.Write(bytesTo, 0, bytesTo.Length);
                     networkStream.Flush();
-                    Console.WriteLine("Sent Keyframe data");
+                    //Console.WriteLine("Sent Keyframe data");
 
 
                     byte[] pixels = new byte[height * width * 3 + sizeof(int) + sizeof(long)];
@@ -226,14 +223,14 @@ namespace FractalAnimation
                     int msgLength = networkStream.Read(pixels, 0, pixels.Length);
 
 
-                    Console.WriteLine("Recieved..." + msgLength + " bytes");
+                    //Console.WriteLine("Recieved..." + msgLength + " bytes");
 
                     Mandelbrot mandelbrot = new Mandelbrot(width, height);
 
                     mandelbrot.writeToBitmap(pixels, width * 3, sizeof(int) + sizeof(long));
                     mandelbrot.SaveToFile("testing" + frameNumber + ".png");
-                    Console.WriteLine("Image saved");
-                    Console.WriteLine("Press any key to exit");
+                    //Console.WriteLine("Image saved");
+                    //Console.WriteLine("Press any key to exit");
                 }
                 catch (Exception ex)
                 {

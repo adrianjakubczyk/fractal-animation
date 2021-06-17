@@ -43,11 +43,7 @@ namespace Client
                     {
                         byte[] buffer = new byte[52];
                         int k = stm.Read(buffer, 0, buffer.Length);
-                        if (k > 0)
-                        {
-                            Console.WriteLine("DOING WORK");
-
-                        }
+                        
                         Console.WriteLine("Read " + k + " bytes");
                         int byteCount = 0;
                         int iterations = BitConverter.ToInt32(buffer, byteCount);
@@ -66,10 +62,10 @@ namespace Client
                         byteCount += 16;
 
 
-                        Console.WriteLine("Got data:\niterations: " + iterations + " width: " + width + "  height: " + height);
-                        Console.WriteLine("number of frames: " + numberOfFrames + " frame number: " + frameNumber);
+                        //Console.WriteLine("Got data:\niterations: " + iterations + " width: " + width + "  height: " + height);
+                        //Console.WriteLine("number of frames: " + numberOfFrames + " frame number: " + frameNumber);
 
-                        Console.WriteLine("Got two points:\n" + pointStart + " , " + pointEnd);
+                        //Console.WriteLine("Got two points:\n" + pointStart + " , " + pointEnd);
 
                         byte[] pixels = new byte[height * width * 3 + sizeof(int) + sizeof(long)];
                         long frameCalculationTime = 20;
@@ -87,9 +83,9 @@ namespace Client
                         mandelbrot.pixels.CopyTo(pixels, sizeof(int) + sizeof(long));
 
 
-                        Console.WriteLine("Transmitting.....");
+                        //Console.WriteLine("Transmitting frame "+frameNumber+".....");
                         stm.Write(pixels, 0, pixels.Length);
-                        Console.WriteLine("Transmission complete!");
+                        Console.WriteLine("Frame"+frameNumber+" sent!");
                     }
                     catch(Exception e)
                     {
