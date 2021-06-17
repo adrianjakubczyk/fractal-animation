@@ -31,6 +31,7 @@ namespace FractalAnimation
         private Mandelbrot mandelbrot;
         private List<KeyframeControlElement> keyframeControlElements = new List<KeyframeControlElement>();
         private Server server = new Server();
+        private LogsController logger;
         
         private void generate(object sender, RoutedEventArgs e)
         {
@@ -65,9 +66,8 @@ namespace FractalAnimation
                 {
                     Console.WriteLine(ex.Message);
                 }
-
-                btnGenerate.IsEnabled = false;
                 btnGenerate.Content = "Calculating";
+                btnGenerate.IsEnabled = false;
                 CountdownEvent countdown = new CountdownEvent(1);
                 
                 //Console.WriteLine("Animation length: {0}, FPS: {1}",animationLength,fps);
@@ -103,10 +103,13 @@ namespace FractalAnimation
                 Console.WriteLine("Stopwatch: " + stopwatch.ElapsedMilliseconds + "ms");
                 
                 string strCmdText;
-                strCmdText = "/C ffmpeg -framerate " + fps+" -i testing%d.png output.mp4";
-                System.Diagnostics.Process.Start("CMD.exe", strCmdText);
+                strCmdText = "/C ffmpeg -y -framerate " + fps+" -i testing%d.png output.mp4";
+                Process ffmpeg = Process.Start("CMD.exe", strCmdText);
+                ffmpeg.WaitForExit();
+                logger.AddMessage("Finished");
                 btnGenerate.IsEnabled = true;
                 btnGenerate.Content = "Generate";
+
             }
         }
         private void addKeyFrame(object sender, RoutedEventArgs e)
@@ -193,10 +196,24 @@ namespace FractalAnimation
             mandelbrot.setRecommendedIterations();
             mandelbrot.calculate();
         }
+        public void fuck(String message)
+        {
+            TextBlock textBlock = new TextBlock();
+            textBlock.TextWrapping = TextWrapping.Wrap;
+            textBlock.Inlines.Add(new Bold(new Run(DateTime.Now.ToString("HH:mm:ss"))));
+            textBlock.Inlines.Add(new Run(" > " + message));
+            logs.Children.Add(textBlock);
+
+        }
 
         public MainWindow()
         {
             InitializeComponent();
+
+            logger = LogsController.GetInstance();
+            LogsController.logsPanel = logs;
+
+            logger.AddMessage("Hello world");
 
             Closing += MainWindow_Closing;
             btnGenerate.Click += generate;

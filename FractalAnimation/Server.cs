@@ -15,6 +15,7 @@ namespace FractalAnimation
         TcpListener serverListener = new TcpListener(ipAd, 8001);
         Thread serverThread;
         public List<ClientHandle> clients = new List<ClientHandle>();
+        private LogsController logger = LogsController.GetInstance();
 
         public Server()
         {
@@ -25,13 +26,13 @@ namespace FractalAnimation
         {
             serverThread.Start();
         }
-
+        
         public void DoServerWork()
         {
             int counter = 0;
 
             serverListener.Start();
-            Console.WriteLine(" >> " + "Server Started");
+            logger.AddMessage("Server started!");
 
             bool doWork = true;
             while (doWork)
@@ -40,12 +41,12 @@ namespace FractalAnimation
                 try
                 {
                     TcpClient clientSocket = serverListener.AcceptTcpClient();
-                    Console.WriteLine(" >> " + "Client No:" + Convert.ToString(counter) + " started!");
+                    logger.AddMessage("Client No: " + Convert.ToString(counter) + " connected");
                     ClientHandle client = new ClientHandle(clientSocket, counter);
                     clients.Add(client);
                 } catch(SocketException e)
                 {
-                    Console.WriteLine("Socket closed; "+e.Message);
+                    Console.WriteLine("Socket closed; " + e.Message);
                     doWork = false;
                 }
                 
@@ -55,10 +56,8 @@ namespace FractalAnimation
 
         public void Calculate(List<KeyframeControlElement> keyframes,int width,int height,int iterations, int framerate, ref CountdownEvent countdown)
         {
+            logger.AddMessage("Generating...");
             
-            
-            Console.WriteLine("\n\nClient count: " + clients.Count);
-
             List<Frame> frames = new List<Frame>();
 
             //framerate = (int)Math.Ceiling(framerate*1.0/(keyframes.Count - 1));
@@ -92,13 +91,12 @@ namespace FractalAnimation
             }
             frames.Add(new Frame(keyframes[keyframes.Count - 1].bottomLeft, keyframes[keyframes.Count - 1].topRight));
 
-            Console.WriteLine("\n\nFRAMES: " +frames.Count);
             for (int i = 0; i < clients.Count; i++)
             {
                 countdown.AddCount();
                 if (!clients[i].clientSocket.Connected)
                 {
-                    Console.WriteLine("CLIENT GOT DCd, removing");
+                    logger.AddMessage("Client "+i+" got disconnected");
                     clients.RemoveAt(i);
                     i--;
                     countdown.Signal();
