@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30621.155
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalAnimation", "FractalAnimation\FractalAnimation.csproj", "{24C57C71-13BB-4957-84A7-42416E70BAC0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{0B8A3B4D-5907-46F6-AFDA-D169C4ECC2B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{3D10A2B0-F1C8-44EF-A67D-EB30DA2C6E17}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{24C57C71-13BB-4957-84A7-42416E70BAC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24C57C71-13BB-4957-84A7-42416E70BAC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24C57C71-13BB-4957-84A7-42416E70BAC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24C57C71-13BB-4957-84A7-42416E70BAC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B8A3B4D-5907-46F6-AFDA-D169C4ECC2B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B8A3B4D-5907-46F6-AFDA-D169C4ECC2B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B8A3B4D-5907-46F6-AFDA-D169C4ECC2B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B8A3B4D-5907-46F6-AFDA-D169C4ECC2B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D10A2B0-F1C8-44EF-A67D-EB30DA2C6E17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D10A2B0-F1C8-44EF-A67D-EB30DA2C6E17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D10A2B0-F1C8-44EF-A67D-EB30DA2C6E17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D10A2B0-F1C8-44EF-A67D-EB30DA2C6E17}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D6E02C34-DE94-46EB-847D-D3AC468D9B7D}
+	EndGlobalSection
+EndGlobal
