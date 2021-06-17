@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -68,9 +69,7 @@ namespace Client
                         //Console.WriteLine("Got two points:\n" + pointStart + " , " + pointEnd);
 
                         byte[] pixels = new byte[height * width * 3 + sizeof(int) + sizeof(long)];
-                        long frameCalculationTime = 20;
-                        BitConverter.GetBytes(frameCalculationTime).CopyTo(pixels, 0);
-                        BitConverter.GetBytes(frameNumber).CopyTo(pixels, sizeof(long));
+                        
 
                         Mandelbrot mandelbrot = new Mandelbrot(width, height);
                         mandelbrot.iterations = iterations;
@@ -79,13 +78,19 @@ namespace Client
                         {
                             mandelbrot.setRecommendedIterations();
                         }
+                        Stopwatch stopwatch = Stopwatch.StartNew();
                         mandelbrot.calculate();
+                        stopwatch.Stop();
+                        long frameCalculationTime = stopwatch.ElapsedMilliseconds;
+                        BitConverter.GetBytes(frameCalculationTime).CopyTo(pixels, 0);
+                        BitConverter.GetBytes(frameNumber).CopyTo(pixels, sizeof(long));
+
                         mandelbrot.pixels.CopyTo(pixels, sizeof(int) + sizeof(long));
 
 
                         //Console.WriteLine("Transmitting frame "+frameNumber+".....");
                         stm.Write(pixels, 0, pixels.Length);
-                        Console.WriteLine("Frame"+frameNumber+" sent!");
+                        Console.WriteLine("Frame "+frameNumber+" sent!");
                     }
                     catch(Exception e)
                     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -56,7 +57,7 @@ namespace FractalAnimation
 
         public void Calculate(List<KeyframeControlElement> keyframes,int width,int height,int iterations, int framerate, ref CountdownEvent countdown)
         {
-            logger.AddMessage("Generating...");
+            
             
             List<Frame> frames = new List<Frame>();
 
@@ -120,8 +121,6 @@ namespace FractalAnimation
                     }
                 }
 
-                //clients[i].Calculate(keyframes.GetRange(keyframes.Count / clients.Count * i, keyframes.Count / clients.Count), (keyframes.Count / clients.Count * i));
-
 
 
             }
@@ -157,13 +156,6 @@ namespace FractalAnimation
             this.clientSocket = socket;
             this.clientNumber = clientNumber;
         }
-        //public void Calculate(List<KeyframeControlElement> frames, int startingFrameNumber)
-        //{
-        //    this.frames = frames;
-        //    this.startingFrameNumber = startingFrameNumber;
-        //    Thread clientHandlerThread = new Thread(TalkToClient);
-        //    clientHandlerThread.Start();
-        //}
         
         public void Calculate(ref CountdownEvent countdown, int width, int height, int iterations, List<Frame> clientFrames, int startingFrameNumber)
         {
@@ -178,6 +170,9 @@ namespace FractalAnimation
         }
         private void TalkToClient()
         {
+            long calculationTime = 0;
+            long communicationTime = 0;
+            long totalCalculationTime = 0;
             for(int i = 0; i < clientFrames.Count; i++)
             {
                 try
@@ -209,7 +204,7 @@ namespace FractalAnimation
                     BitConverter.GetBytes(clientFrames[i].topRight.Y).CopyTo(bytesTo, byteCount);
                     byteCount += 8;
 
-
+                    Stopwatch stopwatch = Stopwatch.StartNew();
                     networkStream.Write(bytesTo, 0, bytesTo.Length);
                     networkStream.Flush();
                     //Console.WriteLine("Sent Keyframe data");
@@ -219,6 +214,9 @@ namespace FractalAnimation
 
 
                     int msgLength = networkStream.Read(pixels, 0, pixels.Length);
+                    stopwatch.Stop();
+                    totalCalculationTime += stopwatch.ElapsedMilliseconds;
+                    calculationTime += BitConverter.ToInt64(pixels, 0);
 
 
                     //Console.WriteLine("Recieved..." + msgLength + " bytes");
@@ -236,6 +234,9 @@ namespace FractalAnimation
                 }
             }
             countdown.Signal();
+            communicationTime = totalCalculationTime - calculationTime;
+            LogsController logger = LogsController.GetInstance();
+            logger.AddMessage("C" + clientNumber + ": total calculation time = " + totalCalculationTime + "ms, calcutation time = " + calculationTime + "ms, communication time = " + communicationTime + "ms");
         }
     }
 }

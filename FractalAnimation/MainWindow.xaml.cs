@@ -98,6 +98,7 @@ namespace FractalAnimation
                 //30 * 1 -> fps * seconds
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 server.Calculate(keyframeControlElements,width,height,iterations,fps*animationLength,ref countdown);
+                logger.AddMessage("Generating...");
                 countdown.Wait();
                 stopwatch.Stop();
                 Console.WriteLine("Stopwatch: " + stopwatch.ElapsedMilliseconds + "ms");
@@ -213,7 +214,6 @@ namespace FractalAnimation
             logger = LogsController.GetInstance();
             LogsController.logsPanel = logs;
 
-            logger.AddMessage("Hello world");
 
             Closing += MainWindow_Closing;
             btnGenerate.Click += generate;
