@@ -29,7 +29,16 @@ namespace Client
                 Console.WriteLine("Connecting.....");
 
                 //client.Connect("127.0.0.1", 8001);
-                client.Connect(IP, portNumber);
+                try
+                {
+                    client.Connect(IP, portNumber);
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
+                }
                 // use the ipaddress as in the server program
 
                 Console.WriteLine("Connected");

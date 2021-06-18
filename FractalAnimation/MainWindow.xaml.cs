@@ -25,7 +25,6 @@ namespace FractalAnimation
     /// </summary>
     public partial class MainWindow : Window
     {
-        //private int MaxIterations = 80;
         Point zoom1;
         Point zoom2;
         private Mandelbrot mandelbrot;
@@ -35,19 +34,7 @@ namespace FractalAnimation
         
         private void generate(object sender, RoutedEventArgs e)
         {
-            //mandelbrot.iterations = int.Parse(inputIterations.Text);
-
-            //Matrix matrix = new Matrix(1280 / (double)1280, 0, 0, 720 / (double)1280, 0, 0);
-            //zoom1 = new Point(-0.800338731554, -0.207153842533);
-            //zoom2 = new Point(zoom1.X + 0.10, zoom1.Y + 0.10);
-
-            //zoom1 = matrix.Transform(zoom1);
-            //zoom2 = matrix.Transform(zoom2);
-
-
-            //mandelbrot.setPoints(zoom1, zoom2);
-            //mandelbrot.setRecommendedIterations();
-            //mandelbrot.calculate();
+            
 
             if (keyframeControlElements.Count > 1)
             {
@@ -70,7 +57,6 @@ namespace FractalAnimation
                 btnGenerate.IsEnabled = false;
                 CountdownEvent countdown = new CountdownEvent(1);
                 
-                //Console.WriteLine("Animation length: {0}, FPS: {1}",animationLength,fps);
                 int width = 1280;
                 int height = 720;
                 switch (inputResolution.SelectedIndex)
@@ -95,16 +81,15 @@ namespace FractalAnimation
                         break;
                 }
 
-                //30 * 1 -> fps * seconds
+                logger.AddMessage("Generating...");
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 server.Calculate(keyframeControlElements,width,height,iterations,fps*animationLength,ref countdown);
-                logger.AddMessage("Generating...");
                 countdown.Wait();
                 stopwatch.Stop();
                 Console.WriteLine("Stopwatch: " + stopwatch.ElapsedMilliseconds + "ms");
-                
+
                 string strCmdText;
-                strCmdText = "/C ffmpeg -y -framerate " + fps+" -i testing%d.png output.mp4";
+                strCmdText = "/C ffmpeg -y -framerate " + fps + " -i testing%d.png output.mp4";
                 Process ffmpeg = Process.Start("CMD.exe", strCmdText);
                 ffmpeg.WaitForExit();
                 logger.AddMessage("Finished");
@@ -197,15 +182,6 @@ namespace FractalAnimation
             mandelbrot.setRecommendedIterations();
             mandelbrot.calculate();
         }
-        public void fuck(String message)
-        {
-            TextBlock textBlock = new TextBlock();
-            textBlock.TextWrapping = TextWrapping.Wrap;
-            textBlock.Inlines.Add(new Bold(new Run(DateTime.Now.ToString("HH:mm:ss"))));
-            textBlock.Inlines.Add(new Run(" > " + message));
-            logs.Children.Add(textBlock);
-
-        }
 
         public MainWindow()
         {
@@ -238,7 +214,6 @@ namespace FractalAnimation
             zoom1 = matrix.Transform(zoom1);
             zoom2 = matrix.Transform(zoom2);
 
-            //Console.WriteLine("\n\nZOOM2: "+zoom2+"\n\n");
 
             zoom1.X = (mandelbrot.bottomLeft.X - zoom1.X) / 30;
             zoom1.Y = (mandelbrot.bottomLeft.Y - zoom1.Y) / 30;

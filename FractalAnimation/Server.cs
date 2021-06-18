@@ -12,8 +12,9 @@ namespace FractalAnimation
 {
     class Server
     {
-        static IPAddress ipAd = IPAddress.Parse("127.0.0.1");
-        TcpListener serverListener = new TcpListener(ipAd, 8001);
+        //static IPAddress ipAd = IPAddress.Parse("127.0.0.1");
+        TcpListener serverListener = new TcpListener(IPAddress.Any, 8001);
+
         Thread serverThread;
         public List<ClientHandle> clients = new List<ClientHandle>();
         private LogsController logger = LogsController.GetInstance();
@@ -33,7 +34,8 @@ namespace FractalAnimation
             int counter = 0;
 
             serverListener.Start();
-            logger.AddMessage("Server started!");
+            logger.AddMessage("Server started on " +IPAddress.Parse(((IPEndPoint)serverListener.LocalEndpoint).Address.ToString()) +
+            ":" + ((IPEndPoint)serverListener.LocalEndpoint).Port.ToString());
 
             bool doWork = true;
             while (doWork)
@@ -124,6 +126,8 @@ namespace FractalAnimation
 
 
             }
+
+            
             countdown.Signal();
             
         }
@@ -166,12 +170,13 @@ namespace FractalAnimation
             this.height = height;
             this.iterations = iterations;
             Thread clientHandlerThread = new Thread(TalkToClient);
+            
             clientHandlerThread.Start();
         }
+        
         private void TalkToClient()
         {
             long calculationTime = 0;
-            long communicationTime = 0;
             long totalCalculationTime = 0;
             for(int i = 0; i < clientFrames.Count; i++)
             {
@@ -234,9 +239,10 @@ namespace FractalAnimation
                 }
             }
             countdown.Signal();
-            communicationTime = totalCalculationTime - calculationTime;
+            long communicationTime = totalCalculationTime - calculationTime;
             LogsController logger = LogsController.GetInstance();
             logger.AddMessage("C" + clientNumber + ": total calculation time = " + totalCalculationTime + "ms, calcutation time = " + calculationTime + "ms, communication time = " + communicationTime + "ms");
+            
         }
     }
 }
