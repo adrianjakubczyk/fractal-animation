@@ -80,10 +80,12 @@ namespace FractalAnimation
                     default:
                         break;
                 }
+                //logger.AddMessage(inputDistribution.SelectedIndex+" index");
 
                 logger.AddMessage("Generating...");
                 Stopwatch stopwatch = Stopwatch.StartNew();
-                server.Calculate(keyframeControlElements,width,height,iterations,fps*animationLength,ref countdown);
+                //countdown.Signal();
+                server.Calculate(inputDistribution.SelectedIndex,keyframeControlElements, width,height,iterations,fps*animationLength,ref countdown);
                 countdown.Wait();
                 stopwatch.Stop();
                 Console.WriteLine("Stopwatch: " + stopwatch.ElapsedMilliseconds + "ms");
@@ -251,25 +253,28 @@ namespace FractalAnimation
 
         private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
+            if (zoomSelectionHandler.zoomingRectangle.Width != 0)
+            {
+                Point bottomLeft = mandelbrot.bottomLeft;
+                Point topRight = mandelbrot.topRight;
+
+                //NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
+                double x1 = (((zoomSelectionHandler.rectStart.X) * (topRight.X - bottomLeft.X)) / (canvas.Width)) + bottomLeft.X;
+                double y1 = (((zoomSelectionHandler.rectStart.Y) * (topRight.Y - bottomLeft.Y)) / (canvas.Height)) + bottomLeft.Y;
+                double x2 = (((zoomSelectionHandler.rectStart.X + zoomSelectionHandler.zoomingRectangle.Width) * (topRight.X - bottomLeft.X)) / (canvas.Width)) + bottomLeft.X;
+                double y2 = (((zoomSelectionHandler.rectStart.Y + zoomSelectionHandler.zoomingRectangle.Height) * (topRight.Y - bottomLeft.Y)) / (canvas.Height)) + bottomLeft.Y;
+
+                Point p1 = new Point(x1, y1);
+                Point p2 = new Point(x2, y2);
+
+                Console.WriteLine(p1);
+                Console.WriteLine(p2);
+
+                mandelbrot.setPoints(p1, p2);
+                mandelbrot.setRecommendedIterations();
+                mandelbrot.calculate();
+            }
             
-            Point bottomLeft = mandelbrot.bottomLeft;
-            Point topRight = mandelbrot.topRight;
-
-            //NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
-            double x1 = (((zoomSelectionHandler.rectStart.X) * (topRight.X - bottomLeft.X)) / (canvas.Width)) + bottomLeft.X;
-            double y1 = (((zoomSelectionHandler.rectStart.Y) * (topRight.Y - bottomLeft.Y)) / (canvas.Height)) + bottomLeft.Y;
-            double x2 = (((zoomSelectionHandler.rectStart.X + zoomSelectionHandler.zoomingRectangle.Width) * (topRight.X - bottomLeft.X)) / (canvas.Width)) + bottomLeft.X;
-            double y2 = (((zoomSelectionHandler.rectStart.Y + zoomSelectionHandler.zoomingRectangle.Height) * (topRight.Y - bottomLeft.Y)) / (canvas.Height)) + bottomLeft.Y;
-            
-            Point p1 = new Point(x1, y1);
-            Point p2 = new Point(x2, y2);
-
-            Console.WriteLine(p1);
-            Console.WriteLine(p2);
-
-            mandelbrot.setPoints(p1, p2);
-            mandelbrot.setRecommendedIterations();
-            mandelbrot.calculate();
 
             zoomSelectionHandler.AbortSelection();
         }

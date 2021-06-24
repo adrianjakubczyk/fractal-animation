@@ -80,24 +80,6 @@ namespace FractalAnimation
             }
         }
 
-        public void EndSelection()
-        {
-            if (isZooming)
-            {
-                var startX = (int)rectStart.X;
-                var startY = (int)rectStart.Y;
-                var width = (int)(rectEnd.X - rectStart.X);
-                var height = (int)(rectEnd.Y - rectStart.Y);
-
-                if (width > 0 && height > 0)
-                {
-                    (width, height) = FixRatio(width, height);
-
-                    AbortSelection();
-
-                }
-            }
-        }
 
         public void AbortSelection()
         {
@@ -110,7 +92,7 @@ namespace FractalAnimation
         private (int width, int height) FixRatio(int width, int height)
         {
             if (Math.Abs(width) > Math.Abs(height)) height = (int)(width * ratioYx);
-            if (Math.Abs(height) > Math.Abs(width)) width = (int)(height * ratioXy);
+            else width = (int)(height * ratioXy);
 
             return (width, height);
         }

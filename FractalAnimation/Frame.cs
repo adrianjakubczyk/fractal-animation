@@ -12,13 +12,17 @@ namespace FractalAnimation
         public Point bottomLeft { get; set; }
         public Point topRight { get; set; }
 
+        public int number { get; set; }
+
         public Frame()
         {
+            this.number = 0;
             this.bottomLeft = new Point();
             this.topRight = new Point();
         }
-        public Frame(Point bottomLeft, Point topRight)
+        public Frame(int number,Point bottomLeft, Point topRight)
         {
+            this.number = number;
             this.bottomLeft = bottomLeft;
             this.topRight = topRight;
 

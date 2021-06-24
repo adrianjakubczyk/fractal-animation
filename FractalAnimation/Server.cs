@@ -20,6 +20,8 @@ namespace FractalAnimation
         public List<ClientHandle> clients = new List<ClientHandle>();
         private LogsController logger = LogsController.GetInstance();
 
+        private static Mutex mutex = new Mutex();
+
         public Server()
         {
             serverThread = new Thread(DoServerWork);
@@ -58,7 +60,7 @@ namespace FractalAnimation
 
         }
 
-        public void Calculate(List<KeyframeControlElement> keyframes,int width,int height,int iterations, int framerate, ref CountdownEvent countdown)
+        public void Calculate(int mode,List<KeyframeControlElement> keyframes,int width,int height,int iterations, int framerate, ref CountdownEvent countdown)
         {
             
             
@@ -70,15 +72,8 @@ namespace FractalAnimation
 
             for (int i=0; i < keyframes.Count-1; i++)
             {
-                Frame begin = new Frame(keyframes[i].bottomLeft, keyframes[i].topRight);
-
-
-                //Frame increment = new Frame(
-                //    (keyframes[i].bottomLeft.X - keyframes[i + 1].bottomLeft.X) / framerate,
-                //    (keyframes[i].bottomLeft.Y - keyframes[i + 1].bottomLeft.Y) / framerate,
-                //    (keyframes[i].topRight.X - keyframes[i + 1].topRight.X) / framerate,
-                //    (keyframes[i].topRight.Y - keyframes[i + 1].topRight.Y) / framerate
-                //    );
+                //Frame begin = new Frame(keyframes[i].bottomLeft, keyframes[i].topRight);
+                
                 double ratio = (keyframes[i + 1].topRight.X - keyframes[i + 1].bottomLeft.X)/ (keyframes[i].topRight.X - keyframes[i].bottomLeft.X);
                 for (int j = 0; j < framerate; ++j)
                 {
@@ -86,12 +81,12 @@ namespace FractalAnimation
                     double weight = ((Math.Pow(ratio, t) - 1) / (ratio - 1));
                     Point bottomLeft = Lerp(keyframes[i].bottomLeft, keyframes[i + 1].bottomLeft, weight);
                     Point topRight = Lerp(keyframes[i].topRight, keyframes[i + 1].topRight, weight);
-                    Frame frame = new Frame(bottomLeft,topRight);
+                    Frame frame = new Frame(frames.Count, bottomLeft,topRight);
                     frames.Add(frame);
                 }
                 
             }
-            frames.Add(new Frame(keyframes[keyframes.Count - 1].bottomLeft, keyframes[keyframes.Count - 1].topRight));
+            frames.Add(new Frame(frames.Count,keyframes[keyframes.Count - 1].bottomLeft, keyframes[keyframes.Count - 1].topRight));
 
             for (int i = 0; i < clients.Count; i++)
             {
@@ -104,23 +99,34 @@ namespace FractalAnimation
                     countdown.Signal();
                     continue;
                 }
-                if((frames.Count & 1) == 0)
+                if (mode == 0)
                 {
-                    clients[i].Calculate(ref countdown, width, height,iterations, frames.GetRange(frames.Count / clients.Count * i, frames.Count / clients.Count), (frames.Count / clients.Count * i));
+                    logger.AddMessage("Frame per client");
+                    clients[i].CalculateFrames(ref countdown, width, height, iterations, ref frames, ref mutex);
                 }
-                else
+                if (mode == 1)
                 {
-                    if (i == 0)
+                    logger.AddMessage("Equal");
+                    if ((frames.Count & 1) == 0)
                     {
-                        clients[i].Calculate(ref countdown, width, height, iterations, frames.GetRange(frames.Count / clients.Count * i, frames.Count / clients.Count), (frames.Count / clients.Count * i));
-
+                        clients[i].CalculateRange(ref countdown, width, height, iterations, frames.GetRange(frames.Count / clients.Count * i, frames.Count / clients.Count), (frames.Count / clients.Count * i));
                     }
                     else
                     {
-                        clients[i].Calculate(ref countdown, width, height, iterations, frames.GetRange((frames.Count / clients.Count * i)+1, frames.Count / clients.Count), (frames.Count / clients.Count * i));
+                        if (i == 0)
+                        {
+                            clients[i].CalculateRange(ref countdown, width, height, iterations, frames.GetRange(frames.Count / clients.Count * i, frames.Count / clients.Count), (frames.Count / clients.Count * i));
 
+                        }
+                        else
+                        {
+                            clients[i].CalculateRange(ref countdown, width, height, iterations, frames.GetRange((frames.Count / clients.Count * i) + 1, frames.Count / clients.Count), (frames.Count / clients.Count * i));
+
+                        }
                     }
                 }
+                
+                
 
 
 
@@ -160,13 +166,15 @@ namespace FractalAnimation
 
         public CountdownEvent countdown;
 
+        public Mutex mutex;
+
         public ClientHandle(TcpClient socket, int clientNumber)
         {
             this.clientSocket = socket;
             this.clientNumber = clientNumber;
         }
         
-        public void Calculate(ref CountdownEvent countdown, int width, int height, int iterations, List<Frame> clientFrames, int startingFrameNumber)
+        public void CalculateRange(ref CountdownEvent countdown, int width, int height, int iterations, List<Frame> clientFrames, int startingFrameNumber)
         {
             this.clientFrames = clientFrames;
             this.startingFrameNumber = startingFrameNumber;
@@ -174,12 +182,116 @@ namespace FractalAnimation
             this.width = width;
             this.height = height;
             this.iterations = iterations;
-            Thread clientHandlerThread = new Thread(TalkToClient);
+            Thread clientHandlerThread = new Thread(TalkToClientRange);
             
             clientHandlerThread.Start();
         }
-        
-        private void TalkToClient()
+
+        public void CalculateFrames(ref CountdownEvent countdown, int width, int height, int iterations,ref List<Frame> frames, ref Mutex mutex)
+        {
+            this.countdown = countdown;
+            this.width = width;
+            this.height = height;
+            this.iterations = iterations;
+            this.mutex = mutex;
+            //Thread clientHandlerThread = new Thread(TalkToClientFrames);
+
+            //clientHandlerThread.Start();
+
+            Thread clientHandlerThread = new Thread(new ParameterizedThreadStart(TalkToClientFrames));
+            clientHandlerThread.Start(frames);
+        }
+        private void TalkToClientFrames(object framesList)
+        {
+            long calculationTime = 0;
+            long totalCalculationTime = 0;
+            bool doWork = true;
+            LogsController logger = LogsController.GetInstance();
+            while (doWork)
+            {
+                //logger.AddMessage(clientNumber + " count" + ((List<Frame>)framesList).Count);
+                Frame frame = null;
+                mutex.WaitOne();
+                if (((List<Frame>)framesList).Count == 0)
+                {
+                    doWork = false;
+                }
+                else
+                {
+                    frame = ((List<Frame>)framesList)[((List<Frame>)framesList).Count - 1];
+                    ((List<Frame>)framesList).RemoveAt(((List<Frame>)framesList).Count - 1);
+                }
+                mutex.ReleaseMutex();
+
+                if (frame!=null)
+                {
+                    try
+                    {
+                        NetworkStream networkStream = clientSocket.GetStream();
+
+
+                        byte[] bytesTo = new byte[52];
+
+                        int numberOfFrames = 1;
+                        int frameNumber = frame.number;
+                        int byteCount = 0;
+                        BitConverter.GetBytes(iterations).CopyTo(bytesTo, byteCount);
+                        byteCount += 4;
+                        BitConverter.GetBytes(width).CopyTo(bytesTo, byteCount);
+                        byteCount += 4;
+                        BitConverter.GetBytes(height).CopyTo(bytesTo, byteCount);
+                        byteCount += 4;
+                        BitConverter.GetBytes(numberOfFrames).CopyTo(bytesTo, byteCount);
+                        byteCount += 4;
+                        BitConverter.GetBytes(frameNumber).CopyTo(bytesTo, byteCount);
+                        byteCount += 4;
+                        BitConverter.GetBytes(frame.bottomLeft.X).CopyTo(bytesTo, byteCount);
+                        byteCount += 8;
+                        BitConverter.GetBytes(frame.bottomLeft.Y).CopyTo(bytesTo, byteCount);
+                        byteCount += 8;
+                        BitConverter.GetBytes(frame.topRight.X).CopyTo(bytesTo, byteCount);
+                        byteCount += 8;
+                        BitConverter.GetBytes(frame.topRight.Y).CopyTo(bytesTo, byteCount);
+                        byteCount += 8;
+
+                        Stopwatch stopwatch = Stopwatch.StartNew();
+                        networkStream.Write(bytesTo, 0, bytesTo.Length);
+                        networkStream.Flush();
+                        //Console.WriteLine("Sent Keyframe data");
+
+
+                        byte[] pixels = new byte[height * width * 3 + sizeof(int) + sizeof(long)];
+
+
+                        int msgLength = networkStream.Read(pixels, 0, pixels.Length);
+                        stopwatch.Stop();
+                        totalCalculationTime += stopwatch.ElapsedMilliseconds;
+                        calculationTime += BitConverter.ToInt64(pixels, 0);
+
+
+                        //Console.WriteLine("Recieved..." + msgLength + " bytes");
+
+                        Mandelbrot mandelbrot = new Mandelbrot(width, height);
+
+                        mandelbrot.writeToBitmap(pixels, width * 3, sizeof(int) + sizeof(long));
+                        mandelbrot.SaveToFile("testing" + frameNumber + ".png");
+                        //Console.WriteLine("Image saved");
+                        //Console.WriteLine("Press any key to exit");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(" >> " + ex.ToString());
+                    }
+                }
+
+            }
+            countdown.Signal();
+            long communicationTime = totalCalculationTime - calculationTime;
+            logger.AddMessage("C" + clientNumber + ": total calculation time = " + totalCalculationTime + "ms, calcutation time = " + calculationTime + "ms, communication time = " + communicationTime + "ms");
+
+        }
+
+        private void TalkToClientRange()
         {
             long calculationTime = 0;
             long totalCalculationTime = 0;

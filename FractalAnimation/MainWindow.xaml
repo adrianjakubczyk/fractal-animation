@@ -378,11 +378,10 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <Label Foreground="White" Content="Distribution type:" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
-                <ComboBox Foreground="#dddddd" HorizontalAlignment="Left"  VerticalAlignment="Top" Style="{DynamicResource ComboBoxStyle1}">
+                <ComboBox x:Name="inputDistribution" Foreground="#dddddd" HorizontalAlignment="Left"  VerticalAlignment="Top" Style="{DynamicResource ComboBoxStyle1}">
 
                     <ComboBoxItem IsSelected="True" Content="Frame per client"/>
-                    <ComboBoxItem Content="100 Frames per client"/>
-                    <ComboBoxItem Content="Equal distribution"/>
+                    <ComboBoxItem Content="Equal number of frames"/>
                 </ComboBox>
             </StackPanel>
             <Button x:Name="btnGenerate" Margin="5,65,5,0" Height="30" Background="#333" Foreground="SpringGreen">Generate</Button>
