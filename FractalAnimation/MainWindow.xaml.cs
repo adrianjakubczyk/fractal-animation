@@ -264,6 +264,9 @@ namespace FractalAnimation
             Point p1 = new Point(x1, y1);
             Point p2 = new Point(x2, y2);
 
+            Console.WriteLine(p1);
+            Console.WriteLine(p2);
+
             mandelbrot.setPoints(p1, p2);
             mandelbrot.setRecommendedIterations();
             mandelbrot.calculate();

@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace FractalAnimation
 {
@@ -72,22 +73,20 @@ namespace FractalAnimation
                 Frame begin = new Frame(keyframes[i].bottomLeft, keyframes[i].topRight);
 
 
-                Frame increment = new Frame(
-                    (keyframes[i].bottomLeft.X - keyframes[i + 1].bottomLeft.X) / framerate,
-                    (keyframes[i].bottomLeft.Y - keyframes[i + 1].bottomLeft.Y) / framerate,
-                    (keyframes[i].topRight.X - keyframes[i + 1].topRight.X) / framerate,
-                    (keyframes[i].topRight.Y - keyframes[i + 1].topRight.Y) / framerate
-                    );
+                //Frame increment = new Frame(
+                //    (keyframes[i].bottomLeft.X - keyframes[i + 1].bottomLeft.X) / framerate,
+                //    (keyframes[i].bottomLeft.Y - keyframes[i + 1].bottomLeft.Y) / framerate,
+                //    (keyframes[i].topRight.X - keyframes[i + 1].topRight.X) / framerate,
+                //    (keyframes[i].topRight.Y - keyframes[i + 1].topRight.Y) / framerate
+                //    );
+                double ratio = (keyframes[i + 1].topRight.X - keyframes[i + 1].bottomLeft.X)/ (keyframes[i].topRight.X - keyframes[i].bottomLeft.X);
                 for (int j = 0; j < framerate; ++j)
                 {
-                    Frame frame = new Frame();
-                    frame.Add(begin);
-                    for (int z = 0; z < j; z++)
-                    {
-                        frame.Subtract(increment);
-
-                    }
-                    Console.WriteLine(i + " : " + j + "  -  " + framerate);
+                    double t = j*1.0 / framerate;
+                    double weight = ((Math.Pow(ratio, t) - 1) / (ratio - 1));
+                    Point bottomLeft = Lerp(keyframes[i].bottomLeft, keyframes[i + 1].bottomLeft, weight);
+                    Point topRight = Lerp(keyframes[i].topRight, keyframes[i + 1].topRight, weight);
+                    Frame frame = new Frame(bottomLeft,topRight);
                     frames.Add(frame);
                 }
                 
@@ -130,6 +129,12 @@ namespace FractalAnimation
             
             countdown.Signal();
             
+        }
+        private Point Lerp(Point start, Point end, double weight)
+        {
+            double x = (1 - weight) * start.X + weight * end.X;
+            double y = (1 - weight) * start.Y + weight * end.Y;
+            return new Point(x,y);
         }
         public void Stop()
         {
