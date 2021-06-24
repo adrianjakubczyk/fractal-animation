@@ -31,7 +31,7 @@ namespace FractalAnimation
         private List<KeyframeControlElement> keyframeControlElements = new List<KeyframeControlElement>();
         private Server server = new Server();
         private LogsController logger;
-        
+        private ZoomSelectionHandler zoomSelectionHandler;
         private void generate(object sender, RoutedEventArgs e)
         {
             
@@ -195,7 +195,7 @@ namespace FractalAnimation
             btnGenerate.Click += generate;
             btnAddKeyframe.Click += addKeyFrame;
             btnZoomOut.Click += zoomOut;
-            previewImage.MouseLeftButtonDown += zoomIn;
+            //previewImage.MouseLeftButtonDown += zoomIn;
 
             mandelbrot = new Mandelbrot(1280, 720);
 
@@ -204,7 +204,7 @@ namespace FractalAnimation
 
             mandelbrot.calculate();
 
-
+            
 
 
             Matrix matrix = new Matrix(1280 / (double)1280, 0, 0, 720 / (double)1280, 0, 0);
@@ -225,9 +225,55 @@ namespace FractalAnimation
 
         }
 
+        private void MainWindow_ContentRendered(object sender, EventArgs e)
+        {
+            canvas.Width = previewImage.ActualWidth;
+            canvas.Height = previewImage.ActualHeight;
+
+            zoomSelectionHandler = new ZoomSelectionHandler(canvas);
+            canvas.Children.Add(zoomSelectionHandler.zoomingRectangle);
+        }
+
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             server.Stop();
+        }
+
+        private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            zoomSelectionHandler.StartSelection(e);
+        }
+
+        private void Canvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            zoomSelectionHandler.MoveSelection(e);
+        }
+
+        private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            
+            Point bottomLeft = mandelbrot.bottomLeft;
+            Point topRight = mandelbrot.topRight;
+
+            //NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
+            double x1 = (((zoomSelectionHandler.rectStart.X) * (topRight.X - bottomLeft.X)) / (canvas.Width)) + bottomLeft.X;
+            double y1 = (((zoomSelectionHandler.rectStart.Y) * (topRight.Y - bottomLeft.Y)) / (canvas.Height)) + bottomLeft.Y;
+            double x2 = (((zoomSelectionHandler.rectStart.X + zoomSelectionHandler.zoomingRectangle.Width) * (topRight.X - bottomLeft.X)) / (canvas.Width)) + bottomLeft.X;
+            double y2 = (((zoomSelectionHandler.rectStart.Y + zoomSelectionHandler.zoomingRectangle.Height) * (topRight.Y - bottomLeft.Y)) / (canvas.Height)) + bottomLeft.Y;
+            
+            Point p1 = new Point(x1, y1);
+            Point p2 = new Point(x2, y2);
+
+            mandelbrot.setPoints(p1, p2);
+            mandelbrot.setRecommendedIterations();
+            mandelbrot.calculate();
+
+            zoomSelectionHandler.AbortSelection();
+        }
+
+        private void Canvas_MouseLeave(object sender, MouseEventArgs e)
+        {
+            zoomSelectionHandler.AbortSelection();
         }
     }
 }

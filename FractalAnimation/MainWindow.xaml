@@ -6,7 +6,9 @@
     xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
     x:Class="FractalAnimation.MainWindow"
         mc:Ignorable="d"
-        Title="Mandelbrot set animation tool" Height="720" Width="1280">
+        Title="Mandelbrot set animation tool" Height="720" Width="1280"
+    ContentRendered="MainWindow_ContentRendered">
+    
     <Window.Resources>
         <Style x:Key="FocusVisual">
             <Setter Property="Control.Template">
@@ -301,6 +303,14 @@
             <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
         <Image Grid.Column="0" x:Name="previewImage" HorizontalAlignment="Left" Height="690" VerticalAlignment="Center" />
+        <Canvas Grid.Column="0" x:Name="canvas" HorizontalAlignment="Left" Height="690" VerticalAlignment="Center" 
+                MouseLeftButtonDown="Canvas_MouseLeftButtonDown" MouseMove="Canvas_MouseMove"
+                    PreviewMouseLeftButtonUp="Canvas_MouseLeftButtonUp"
+                    MouseLeave="Canvas_MouseLeave" >
+            <Canvas.Background>
+                <SolidColorBrush />
+            </Canvas.Background>
+        </Canvas>
         <StackPanel Grid.Column="1">
             <Grid  HorizontalAlignment="Left" Height="121"  VerticalAlignment="Top" Width="419">
                 <Grid.RowDefinitions>

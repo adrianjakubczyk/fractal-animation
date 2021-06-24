@@ -60,6 +60,7 @@
     <Compile Include="Frame.cs" />
     <Compile Include="LogsController.cs" />
     <Compile Include="Server.cs" />
+    <Compile Include="ZoomSelectionHandler.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

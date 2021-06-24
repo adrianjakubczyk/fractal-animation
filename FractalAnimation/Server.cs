@@ -87,7 +87,7 @@ namespace FractalAnimation
                         frame.Subtract(increment);
 
                     }
-
+                    Console.WriteLine(i + " : " + j + "  -  " + framerate);
                     frames.Add(frame);
                 }
                 
