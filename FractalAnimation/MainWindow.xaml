@@ -358,24 +358,24 @@
 
             </ScrollViewer>
             <Button x:Name="btnAddKeyframe" Margin="5,0,10,0" Height="30" Background="#333" Foreground="White">+</Button>
-            <StackPanel Orientation="Horizontal" >
+            <!--<StackPanel Orientation="Horizontal" >
                 <Label Foreground="White" Content="Smoothing:" HorizontalAlignment="Left" Margin="0,10,10,0" VerticalAlignment="Top"/>
                 <ComboBox Foreground="#dddddd" HorizontalAlignment="Left" Height="23" Margin="0,10,0,0" VerticalAlignment="Top" Width="332" Style="{DynamicResource ComboBoxStyle1}">
 
                     <ComboBoxItem IsSelected="True" Content="Linear"/>
                     <ComboBoxItem Content="Bezier"/>
                 </ComboBox>
-            </StackPanel>
+            </StackPanel>-->
             <Label Foreground="White" Content="Logs:" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
             <ScrollViewer Background="#333" Foreground="White" Margin="5,0,5,0" Height="100">
                 <StackPanel x:Name="logs" Orientation="Vertical">
                     
                 </StackPanel>
             </ScrollViewer>
-            <StackPanel Orientation="Horizontal">
+            <!--<StackPanel Orientation="Horizontal">
                 <Label Foreground="White" Content="Connected clients:" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
                 <Label Foreground="White" Content="0" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
-            </StackPanel>
+            </StackPanel>-->
             <StackPanel Orientation="Horizontal">
                 <Label Foreground="White" Content="Distribution type:" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
                 <ComboBox x:Name="inputDistribution" Foreground="#dddddd" HorizontalAlignment="Left"  VerticalAlignment="Top" Style="{DynamicResource ComboBoxStyle1}">
@@ -384,7 +384,7 @@
                     <ComboBoxItem Content="Equal number of frames"/>
                 </ComboBox>
             </StackPanel>
-            <Button x:Name="btnGenerate" Margin="5,65,5,0" Height="30" Background="#333" Foreground="SpringGreen">Generate</Button>
+            <Button x:Name="btnGenerate" Margin="5,120,5,0" Height="30" Background="#333" Foreground="SpringGreen">Generate</Button>
 
 
 

@@ -44,6 +44,13 @@ namespace FractalAnimation
             };
         }
 
+        public void SetRatioFromCanvas(Canvas referenceCanvas)
+        {
+            this.referenceCanvas = referenceCanvas;
+            this.ratioXy = referenceCanvas.Width / referenceCanvas.Height;
+            this.ratioYx = referenceCanvas.Height / referenceCanvas.Width;
+        }
+
         public void StartSelection(MouseEventArgs e)
         {
             isZooming = true;

@@ -32,6 +32,8 @@ namespace FractalAnimation
         private Server server = new Server();
         private LogsController logger;
         private ZoomSelectionHandler zoomSelectionHandler;
+        private int width;
+        private int height;
         private void generate(object sender, RoutedEventArgs e)
         {
             
@@ -158,7 +160,7 @@ namespace FractalAnimation
         private void zoomOut(object sender, RoutedEventArgs e)
         {
             
-            Matrix matrix = new Matrix(1280 / (double)1280, 0, 0, 720 / (double)1280, 0, 0);
+            Matrix matrix = new Matrix(width / (double)width, 0, 0, height / (double)width, 0, 0);
             zoom1 = new Point(-2, -2);
             zoom2 = new Point(zoom1.X + 4, zoom1.Y + 4);
 
@@ -170,20 +172,20 @@ namespace FractalAnimation
             mandelbrot.setRecommendedIterations();
             mandelbrot.calculate();
         }
-        private void zoomIn(object sender, RoutedEventArgs e)
-        {
-            Matrix matrix = new Matrix(1280 / (double)1280, 0, 0, 720 / (double)1280, 0, 0);
-            zoom1 = new Point(-0.800338731554, -0.207153842533);
-            zoom2 = new Point(zoom1.X + 0.10, zoom1.Y + 0.10);
+        //private void zoomIn(object sender, RoutedEventArgs e)
+        //{
+        //    Matrix matrix = new Matrix(1280 / (double)1280, 0, 0, 720 / (double)1280, 0, 0);
+        //    zoom1 = new Point(-0.800338731554, -0.207153842533);
+        //    zoom2 = new Point(zoom1.X + 0.10, zoom1.Y + 0.10);
 
-            zoom1 = matrix.Transform(zoom1);
-            zoom2 = matrix.Transform(zoom2);
+        //    zoom1 = matrix.Transform(zoom1);
+        //    zoom2 = matrix.Transform(zoom2);
 
 
-            mandelbrot.setPoints(zoom1, zoom2);
-            mandelbrot.setRecommendedIterations();
-            mandelbrot.calculate();
-        }
+        //    mandelbrot.setPoints(zoom1, zoom2);
+        //    mandelbrot.setRecommendedIterations();
+        //    mandelbrot.calculate();
+        //}
 
         public MainWindow()
         {
@@ -198,11 +200,16 @@ namespace FractalAnimation
             btnAddKeyframe.Click += addKeyFrame;
             btnZoomOut.Click += zoomOut;
             //previewImage.MouseLeftButtonDown += zoomIn;
+            inputResolution.SelectionChanged += changeResolution;
 
-            mandelbrot = new Mandelbrot(1280, 720);
+            width = 1280;
+            height = 720;
+
+            mandelbrot = new Mandelbrot(width, height);
 
             previewImage.Source = mandelbrot.GetBitmap();
             previewImage.Stretch = Stretch.Uniform;
+            previewImage.LayoutUpdated += refreshCanvas;
 
             mandelbrot.calculate();
 
@@ -225,6 +232,41 @@ namespace FractalAnimation
 
             server.Start();
 
+        }
+
+        private void refreshCanvas(object sender, EventArgs e)
+        {
+            if (zoomSelectionHandler != null)
+            {
+                canvas.Width = previewImage.ActualWidth;
+                canvas.Height = previewImage.ActualHeight;
+
+                zoomSelectionHandler.SetRatioFromCanvas(canvas);
+            }
+            
+        }
+
+        private void changeResolution(object sender, SelectionChangedEventArgs e)
+        {
+            
+            width = 1280;
+            height = 720;
+            switch (inputResolution.SelectedIndex)
+            {
+                case 0:
+                    width = 640;
+                    height = 480;
+                    break;
+                default:
+                    break;
+            }
+
+            mandelbrot.resizeBitmap(width, height);
+            mandelbrot.setRecommendedIterations();
+            mandelbrot.calculate();
+            previewImage.Source = mandelbrot.GetBitmap();
+            
+            
         }
 
         private void MainWindow_ContentRendered(object sender, EventArgs e)

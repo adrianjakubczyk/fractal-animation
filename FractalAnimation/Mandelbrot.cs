@@ -83,18 +83,18 @@ namespace FractalAnimation
                     //BLUE
                     pixels[2 + 3 * (x + bitmap.PixelWidth * y)] = (byte)(color);
 
-                    if (x == bitmap.PixelWidth / 2)
-                    {
-                        pixels[0 + 3 * (x + bitmap.PixelWidth * y)] = (byte)(255);
-                    }
-                    if (y == bitmap.PixelHeight / 2)
-                    {
-                        pixels[2 + 3 * (x + bitmap.PixelWidth * y)] = (byte)(255);
-                    }
-                    if (y == 100)
-                    {
-                        pixels[1 + 3 * (x + bitmap.PixelWidth * y)] = (byte)(255);
-                    }
+                    //if (x == bitmap.PixelWidth / 2)
+                    //{
+                    //    pixels[0 + 3 * (x + bitmap.PixelWidth * y)] = (byte)(255);
+                    //}
+                    //if (y == bitmap.PixelHeight / 2)
+                    //{
+                    //    pixels[2 + 3 * (x + bitmap.PixelWidth * y)] = (byte)(255);
+                    //}
+                    //if (y == 100)
+                    //{
+                    //    pixels[1 + 3 * (x + bitmap.PixelWidth * y)] = (byte)(255);
+                    //}
 
 
                 }
